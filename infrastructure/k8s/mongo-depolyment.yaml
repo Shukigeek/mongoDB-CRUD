@@ -33,6 +33,11 @@ spec:
                 secretKeyRef:
                   name: mongo-secret
                   key: mongo-database
+            - name: MONGO_COLLECTION
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-collection
           volumeMounts:
             - name: mongo-storage
               mountPath: /data/db

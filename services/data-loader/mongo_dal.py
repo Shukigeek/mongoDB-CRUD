@@ -9,6 +9,7 @@ class Connection:
         self.port = os.getenv("MONGO_PORT", "27017")
         self.db = os.getenv("MONGO_DB")
         self.auth = os.getenv("MONGO_AUTH_DB","admin")
+
         self.client = None
 
     def connect(self):

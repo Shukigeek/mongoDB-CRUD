@@ -41,4 +41,19 @@ class CRUD:
         else:
             raise ValueError("Input must be a Soldier instance or a list of Soldier instances")
 
+    def read(self, name=None):
+        if name is None:
+            cursor = self.collection.find({}, {"_id": 0})
+            res = list(cursor)
+            return res  # if collection is empty it will return -> []
+        else:
+            cursor = list(self.collection.find({"first_name": name}, {"_id": 0}))
+            if cursor:
+                return cursor
+            else:
+                return [{"error": f"{name} not exist in db"}]
 
+    def update(self):
+        pass
+    def delete(self):
+        pass

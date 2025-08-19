@@ -60,5 +60,10 @@ class CRUD:
         else:
             return {"success": False, "error": f"ID {ID} not found"}
 
-    def delete(self):
-        pass
+    def delete(self, ID):
+
+        result = self.collection.delete_one({"ID": ID})
+        if result.deleted_count:
+            return {"success": True}
+        else:
+            return {"success": False, "error": f"ID {ID} not found"}

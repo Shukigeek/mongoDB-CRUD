@@ -1,6 +1,7 @@
 import os
 from mongo_dal import Connection
 from soldier import Soldier
+from pymongo import ReturnDocument
 
 class CRUD:
     def __init__(self):
@@ -12,46 +13,47 @@ class CRUD:
             )
 
         self.db = self.client[self.conn.db]
-        self.collection = self.db[os.getenv("MONGO_COLLECTION")]
-        # special collection for the ID count (auto increment)
-        self.counter_collection = self.db["counters"]
+        self.collection = self.db[os.getenv("MONGO_COLLECTION", "soldier_details")]
+        self.counter_collection = self.db.get_collection("counters")
 
     def _get_next_id(self):
-        # Finds the current value and increments it by 1,
-        # if no current value found, new creator exists.
         counter = self.counter_collection.find_one_and_update(
             {"_id": "soldier_id"},
             {"$inc": {"seq": 1}},
             upsert=True,
-            return_document=True
+            return_document=ReturnDocument.AFTER
         )
+        if counter is None or "seq" not in counter:
+            self.counter_collection.insert_one({"_id": "soldier_id", "seq": 1})
+            return 1
         return counter["seq"]
 
     def create(self, soldier):
         if isinstance(soldier, Soldier):
-            # adding ID automatically
             soldier.ID = self._get_next_id()
             result = self.collection.insert_one(soldier.dict())
             return {"record_inserted": str(result.inserted_id)}
+
         elif isinstance(soldier, list) and all(isinstance(s, Soldier) for s in soldier):
             for s in soldier:
                 s.ID = self._get_next_id()
             result = self.collection.insert_many([s.dict() for s in soldier])
             return {"records_inserted": len(result.inserted_ids)}
+
         else:
             raise ValueError("Input must be a Soldier instance or a list of Soldier instances")
 
-    def read(self, name=None):
-        if name is None:
-            cursor = self.collection.find({}, {"_id": 0})
-            res = list(cursor)
-            return res  # if collection is empty it will return -> []
-        else:
-            cursor = list(self.collection.find({"first_name": name}, {"_id": 0}))
-            if cursor:
-                return cursor
-            else:
-                return [{"error": f"{name} not exist in db"}]
+    def read(self, ID=None, first_name=None):
+        filter_query = {}
+        if ID is not None:
+            filter_query["ID"] = ID
+        elif first_name is not None:
+            filter_query["first_name"] = first_name
+
+        cursor = list(self.collection.find(filter_query, {"_id": 0}))
+        if not cursor:
+            return [{"error": "No matching record found"}]
+        return cursor
 
     def update(self, ID, updates: dict):
         result = self.collection.update_one({"ID": ID}, {"$set": updates})
@@ -61,7 +63,6 @@ class CRUD:
             return {"success": False, "error": f"ID {ID} not found"}
 
     def delete(self, ID):
-
         result = self.collection.delete_one({"ID": ID})
         if result.deleted_count:
             return {"success": True}

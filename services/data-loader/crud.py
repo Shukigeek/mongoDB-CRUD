@@ -1,7 +1,7 @@
 import os
 from mongo_dal import Connection
 from soldier import Soldier
-from pymongo import ReturnDocument
+
 
 class CRUD:
     def __init__(self):
@@ -21,7 +21,7 @@ class CRUD:
             {"_id": "soldier_id"},
             {"$inc": {"seq": 1}},
             upsert=True,
-            return_document=ReturnDocument.AFTER
+            return_document=True
         )
         if counter is None or "seq" not in counter:
             self.counter_collection.insert_one({"_id": "soldier_id", "seq": 1})

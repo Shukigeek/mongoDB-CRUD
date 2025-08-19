@@ -53,7 +53,12 @@ class CRUD:
             else:
                 return [{"error": f"{name} not exist in db"}]
 
-    def update(self):
-        pass
+    def update(self, ID, updates: dict):
+        result = self.collection.update_one({"ID": ID}, {"$set": updates})
+        if result.matched_count:
+            return {"success": True, "modified_count": result.modified_count}
+        else:
+            return {"success": False, "error": f"ID {ID} not found"}
+
     def delete(self):
         pass

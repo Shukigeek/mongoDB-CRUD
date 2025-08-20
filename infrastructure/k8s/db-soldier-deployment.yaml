@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-soldier
+  labels:
+    app: db-soldier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-soldier
+  template:
+    metadata:
+      labels:
+        app: db-soldier
+    spec:
+      containers:
+        - name: db-soldier
+          image: shuki120/db-soldier:1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: mongo-secret

@@ -23,3 +23,8 @@ spec:
           envFrom:
             - secretRef:
                 name: mongo-secret
+          env:
+            - name: MONGO_HOST
+              value: mongodb
+            - name: MONGO_PORT
+              value: "27017"

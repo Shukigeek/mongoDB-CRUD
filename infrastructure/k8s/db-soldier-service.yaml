@@ -6,7 +6,5 @@ spec:
   selector:
     app: db-soldier
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 8000
       targetPort: 8000
-  type: ClusterIP

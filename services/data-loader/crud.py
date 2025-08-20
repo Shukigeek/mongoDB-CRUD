@@ -14,31 +14,26 @@ class CRUD:
 
         self.db = self.client[self.conn.db]
         self.collection = self.db[os.getenv("MONGO_COLLECTION", "soldier_details")]
-        self.counter_collection = self.db.get_collection("counters")
 
-    def _get_next_id(self):
-        counter = self.counter_collection.find_one_and_update(
-            {"_id": "soldier_id"},
-            {"$inc": {"seq": 1}},
-            upsert=True,
-            return_document=True
-        )
-        if counter is None or "seq" not in counter:
-            self.counter_collection.insert_one({"_id": "soldier_id", "seq": 1})
-            return 1
-        return counter["seq"]
-
-    def create(self, soldier):
+    def create(self, soldier: Soldier):
         if isinstance(soldier, Soldier):
-            soldier.ID = self._get_next_id()
+            # checking if there is a soldier with that ID in db
+            existing = self.collection.find_one({"ID": soldier.ID})
+            if existing:
+                return {"error": f"Soldier with ID {soldier.ID} already exists. Try update instead."}
+
+            # if not exist insert to db
             result = self.collection.insert_one(soldier.dict())
             return {"record_inserted": str(result.inserted_id)}
 
         elif isinstance(soldier, list) and all(isinstance(s, Soldier) for s in soldier):
+            # list of all the soldiers
+            inserted = []
             for s in soldier:
-                s.ID = self._get_next_id()
-            result = self.collection.insert_many([s.dict() for s in soldier])
-            return {"records_inserted": len(result.inserted_ids)}
+                if not self.collection.find_one({"ID": s.ID}):  # insert only if not already exist
+                    result = self.collection.insert_one(s.dict())
+                    inserted.append(result.inserted_id)
+            return {"records_inserted": len(inserted)}
 
         else:
             raise ValueError("Input must be a Soldier instance or a list of Soldier instances")

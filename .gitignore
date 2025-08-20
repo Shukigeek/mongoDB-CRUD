@@ -1,3 +1,4 @@
 .venv/
 venv/
 .idea/
+infrastructure/k8s/mongo-secret.yaml

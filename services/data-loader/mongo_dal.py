@@ -7,7 +7,7 @@ class Connection:
         self.password = os.getenv("MONGO_PASSWORD")
         self.host = os.getenv("MONGO_HOST", "localhost")
         self.port = os.getenv("MONGO_PORT", "27017")
-        self.db = os.getenv("MONGO_DB")
+        self.db = os.getenv("MONGO_DB","enemy_soldiers")
         self.auth = os.getenv("MONGO_AUTH_DB","admin")
 
         self.client = None

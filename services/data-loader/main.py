@@ -1,27 +1,36 @@
 from fastapi import FastAPI
-from crud import CRUD
 from soldier import Soldier
+from crud import CRUD
+import uvicorn
 
 app = FastAPI()
 crud = CRUD()
 
+# GET all soldiers in db
+@app.get("/soldiersdb/")
+def get_all_soldiers():
+    return crud.read()
 
-@app.post("/insert")
-def insert_data(soldier: Soldier):
+# GET one selected soldier in db
+@app.get("/soldiersdb/{soldier_id}")
+def get_soldier(soldier_id: int):
+    return crud.read(ID=soldier_id)
+
+# POST insert new soldier/s
+@app.post("/soldiersdb/")
+def create_soldier(soldier: Soldier):
     return crud.create(soldier)
 
+# PUT update soldier by id
+@app.put("/soldiersdb/{soldier_id}")
+def update_soldier(soldier_id: int, updates: dict):
+    return crud.update(soldier_id, updates)
 
-@app.get("/read")
-def get_data(ID: int = None, first_name: str = None):
-    return crud.read(ID=ID, first_name=first_name)
+# DELETE soldier by id
+@app.delete("/soldiersdb/{soldier_id}")
+def delete_soldier(soldier_id: int):
+    return crud.delete(soldier_id)
 
 
-@app.put("/update/{ID}")
-def update_data(ID: int, updates: dict):
-    return crud.update(ID, updates)
-
-
-@app.delete("/delete/{ID}")
-def delete_data(ID: int):
-    return crud.delete(ID)
-
+if __name__ == '__main__':
+    uvicorn.run(app,host="localhost",port=8000)

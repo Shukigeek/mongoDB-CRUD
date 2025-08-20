@@ -24,3 +24,4 @@ def update_data(ID: int, updates: dict):
 @app.delete("/delete/{ID}")
 def delete_data(ID: int):
     return crud.delete(ID)
+

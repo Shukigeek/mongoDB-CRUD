@@ -16,4 +16,9 @@ def get_data(ID: int = None, first_name: str = None):
     return crud.read(ID=ID, first_name=first_name)
 
 
+@app.put("/update/{ID}")
+def update_data(ID: int, updates: dict):
+    return crud.update(ID, updates)
+
+
 

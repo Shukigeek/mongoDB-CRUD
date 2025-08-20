@@ -11,4 +11,9 @@ def insert_data(soldier: Soldier):
     return crud.create(soldier)
 
 
+@app.get("/read")
+def get_data(ID: int = None, first_name: str = None):
+    return crud.read(ID=ID, first_name=first_name)
+
+
 
